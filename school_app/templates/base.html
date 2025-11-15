@@ -235,7 +235,9 @@
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
 </head>
 
-<body class="{% if not current_user.is_admin %}no-sidebar{% endif %}">
+{% set is_admin = current_user.is_admin if current_user is defined and current_user.is_admin else False %}
+<body class="{% if not is_admin %}no-sidebar{% endif %}">
+
   
   {% if current_user.is_admin %}
   <!-- サイドメニュー（管理者限定） -->
