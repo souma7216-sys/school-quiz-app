@@ -1,288 +1,188 @@
+<!-- templates/admin.html -->
 <!doctype html>
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <title>作問ツール</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-
-  <style>
-    body {
-      background: #f3f4f6;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    .container {
-      max-width: 960px;
-      margin: 32px auto;
-      background: #ffffff;
-      padding: 24px 30px 30px;
-      border-radius: 18px;
-      box-shadow: 0 10px 30px rgba(15,23,42,0.12);
-    }
-    h1 { margin-top: 0; }
-    h2 { margin-bottom: 8px; }
-    label { font-size: 14px; font-weight: 600; }
-
-    input[type="text"], textarea, select {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: 10px;
-      border: 1px solid #d1d5db;
-      margin-top: 4px;
-      margin-bottom: 10px;
-      font-size: 14px;
-    }
-    textarea {
-      resize: vertical;
-    }
-    /* 問題文は大きめに */
-    #text {
-      min-height: 180px;
-    }
-
-    .btn {
-      padding: 8px 14px;
-      border-radius: 999px;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-    }
-    .btn-primary {
-      background: #2563eb;
-      color: #fff;
-    }
-    .btn-primary:hover { background:#1d4ed8; }
-    .btn-gray {
-      background: #e5e7eb;
-      color: #374151;
-    }
-    .btn-gray:hover { background:#d1d5db; }
-    .btn-danger {
-      background: #dc2626;
-      color: #fff;
-    }
-
-    .hint {
-      font-size: 12px;
-      color: #6b7280;
-      margin-top: -4px;
-      margin-bottom: 8px;
-    }
-
-    /* カテゴリビルダー */
-    #cat-builder {
-      margin-bottom: 16px;
-    }
-    .cat-path {
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: #f3f4f6;
-      border: 1px solid #e5e7eb;
-      font-size: 13px;
-      margin-bottom: 6px;
-    }
-    .cat-input-row {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 4px;
-    }
-    .cat-input-row input[type="text"] {
-      margin-bottom: 0;
-    }
-
-    /* 選択肢＋正解ボタン */
-    .choice-edit-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-    .choice-edit-row input[type="text"] {
-      flex: 1;
-      margin-bottom: 0;
-    }
-    .ans-radio {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 13px;
-      white-space: nowrap;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 12px;
-      font-size: 14px;
-    }
-    th, td {
-      padding: 8px;
-      border-bottom: 1px solid #e5e7eb;
-      text-align: left;
-      vertical-align: top;
-    }
-    .op-link {
-      cursor: pointer;
-      color: #2563eb;
-      margin-right: 8px;
-    }
-    .op-link-danger {
-      cursor: pointer;
-      color: #dc2626;
-    }
-
-    #toast {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      z-index: 50;
-    }
-    .toast {
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-size: 14px;
-      background: #e5e7eb;
-      box-shadow: 0 10px 24px rgba(15,23,42,0.3);
-      transition: opacity .3s ease, transform .3s ease;
-    }
-    .toast.success { background:#dcfce7; color:#166534; }
-    .toast.error   { background:#fee2e2; color:#b91c1c; }
-
-    .type-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    .type-row select {
-      max-width: 260px;
-      margin-bottom: 0;
-    }
-  </style>
+  <title>管理ダッシュボード - 学校クイズアプリ</title>
 </head>
 <body>
-  <div class="container">
+  {% include "_header.html" %}
 
-    <h1>作問ツール</h1>
-    <a href="/quiz" style="font-size:14px;">← クイズ画面に戻る</a>
+  <main class="page">
+    <h1>管理ダッシュボード</h1>
 
-    <h2 style="margin-top:24px;">新規作成 / 編集</h2>
-    <p id="edit-status" class="hint">新規作成モードです。</p>
-
-    <form id="question-form" onsubmit="return false;">
-      <input type="hidden" id="edit-id" value="">
-      <input type="hidden" id="category" value="">
-
-      <label>問題文</label>
-      <textarea id="text"></textarea>
-      <p class="hint">※ Markdown / LaTeX（<code>$...$</code>）が使えます。</p>
-
-      <!-- 問題形式 -->
-      <label>問題形式</label>
-      <div class="type-row">
-        <select id="qtype">
-          <option value="single">択一式（1つだけ選ぶ）</option>
-          <option value="text">記述式（1つの解答）</option>
-          <option value="multi">複数選択式（複数の選択肢を選ぶ）</option>
-          <option value="multi-text">複数記述式（順不同で複数記述）</option>
-        </select>
+    <!-- 概要カード -->
+    <section class="cards">
+      <div class="stat-card">
+        <div class="stat-label">登録ユーザー数</div>
+        <div class="stat-value">{{ total_users }}</div>
       </div>
-      <p class="hint">
-        例）複数記述式：「3つ挙げよ」など。解答は順不同で正解にします。
-      </p>
+      <div class="stat-card">
+        <div class="stat-label">登録問題数</div>
+        <div class="stat-value">{{ total_questions }}</div>
+      </div>
+    </section>
 
-      <!-- 階層カテゴリビルダー -->
-      <label>階層カテゴリ</label>
-      <div id="cat-builder">
-        <div id="cat-path-display" class="cat-path">（未設定 → 未分類として保存されます）</div>
-        <div class="cat-input-row">
-          <!-- 既存の階層名が候補に出る -->
-          <input type="text" id="cat-input" placeholder="階層名を入力して『追加』" list="cat-segment-list">
-          <button type="button" id="cat-add" class="btn btn-gray">追加</button>
-          <button type="button" id="cat-clear" class="btn btn-gray">クリア</button>
-        </div>
-        <datalist id="cat-segment-list"></datalist>
-
-        <p class="hint">
-          例：基礎流体力学 → 中間 → 第一回 など、好きな階層を順番に追加できます。<br>
-          一度使った階層名は入力欄のプルダウンから選べます。
-        </p>
+    <!-- ユーザー別の問題数 -->
+    <section class="card">
+      <div class="card-header">
+        <h2>ユーザー別の問題数</h2>
+        <a href="{{ url_for('admin_user_questions_page') }}" class="link">
+          ユーザー別問題一覧を見る →
+        </a>
       </div>
 
-      <h3>解答の設定</h3>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ユーザー名</th>
+            <th style="width:160px;">問題数</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for username, count in questions_by_user.items() %}
+            <tr>
+              <td>{{ username }}</td>
+              <td>{{ count }}</td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="2" class="empty">
+                まだ問題が登録されていません。
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
 
-      <!-- 択一式 / 複数選択式 用のブロック -->
-      <div id="choice-block">
-        <div id="choice-list"></div>
-        <button type="button" id="choice-add-btn" class="btn btn-gray">選択肢を追加</button>
-        <p class="hint">※ 択一式・複数選択式とも、選択肢は2つ以上必要です。</p>
+    <!-- 最近登録された問題 -->
+    <section class="card">
+      <div class="card-header">
+        <h2>最近登録された問題</h2>
       </div>
 
-      <!-- 記述式 用 -->
-      <div id="text-answer-block" style="display:none;">
-        <label>正解（記述式）</label>
-        <textarea id="text-answers" placeholder="正解の書き方を1行に1つずつ入力してください&#10;例：三相誘導電動機&#10;三相誘導機"></textarea>
-        <p class="hint">
-          入力された文字列と完全一致で判定します。表記ゆれがあれば複数行で登録してください。
-        </p>
-      </div>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th style="width:60px;">ID</th>
+            <th>問題文</th>
+            <th style="width:140px;">ユーザー</th>
+            <th style="width:140px;">カテゴリ</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for q in recent_questions %}
+            <tr>
+              <td>{{ q.id }}</td>
+              <td class="text-col">{{ q.text }}</td>
+              <td>{{ q.owner or '' }}</td>
+              <td>{{ q.category or '未分類' }}</td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="4" class="empty">
+                まだ問題が登録されていません。
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  </main>
 
-      <!-- 複数記述式 用：答え枠を増やせる -->
-      <div id="multi-text-answer-block" style="display:none;">
-        <label>正解（複数記述式）</label>
-        <div id="multi-text-answer-list"></div>
-        <button type="button" id="multi-text-add-btn" class="btn btn-gray">答え枠を追加</button>
-        <p class="hint">
-          必要なキーワードを1枠に1つずつ入力してください。<br>
-          解答欄の数はここで作った枠の数になります。<br>
-          ユーザーが入力した答えが、これらと<strong>順不同で一致</strong>したときに正解になります。
-        </p>
-      </div>
+  <style>
+  .page {
+    max-width: 960px;
+    margin: 16px auto 40px;
+    padding: 0 16px;
+  }
+  h1 {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+  h2 {
+    font-size: 18px;
+    margin: 0;
+  }
 
-      <label>解説</label>
-      <textarea id="explain" placeholder="解説があれば記入してください"></textarea>
+  /* 概要カード */
+  .cards {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    flex: 1 1 160px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 14px 16px;
+    box-shadow: 0 4px 12px rgba(15,23,42,0.06);
+  }
+  .stat-label {
+    font-size: 13px;
+    color: #6b7280;
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    margin-top: 4px;
+  }
 
-      <div style="margin-top:8px; display:flex; gap:8px;">
-        <button type="button" id="save" class="btn btn-primary">保存</button>
-        <button type="button" id="cancel-edit" class="btn btn-gray" style="display:none;">編集キャンセル</button>
-      </div>
-    </form>
+  /* 共通カード */
+  .card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 14px 16px 16px;
+    box-shadow: 0 4px 12px rgba(15,23,42,0.06);
+    margin-bottom: 16px;
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .link {
+    font-size: 13px;
+    color: #2563eb;
+    text-decoration: none;
+  }
+  .link:hover {
+    text-decoration: underline;
+  }
 
-    <h2 style="margin-top:32px;">一覧</h2>
-
-    <!-- 絞り込みUI -->
-    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; font-size:14px;">
-      <span>カテゴリ絞り込み:</span>
-      <select id="list-filter-category" style="padding:4px 6px; border-radius:999px; border:1px solid #d1d5db;">
-        <option value="">すべて</option>
-      </select>
-      <button type="button" id="list-filter-clear" class="btn btn-gray">クリア</button>
-    </div>
-
-    <table id="list">
-      <thead>
-        <tr>
-          <th style="width:60px;">ID</th>
-          <th>問題文</th>
-          <th>形式</th>
-          <th>カテゴリ</th>
-          <th style="width:160px;">操作</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-
-  </div>
-
-  <div id="toast"></div>
-
-  <script src="{{ url_for('static', filename='admin.js') }}"></script>
+  /* 表の見た目改善 */
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .admin-table thead {
+    background: #f3f4f6;
+  }
+  .admin-table th,
+  .admin-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+  }
+  .admin-table tbody tr:nth-child(even) {
+    background: #f9fafb;
+  }
+  .admin-table tbody tr:hover {
+    background: #e5f0ff;
+  }
+  .admin-table .text-col {
+    max-width: 420px;
+    word-break: break-word;
+  }
+  .empty {
+    text-align: center;
+    color: #6b7280;
+    padding: 18px 0;
+  }
+  </style>
 </body>
 </html>
