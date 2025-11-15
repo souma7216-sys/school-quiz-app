@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+  <h1>紹介コード管理</h1>
+  <p class="note">この紹介コードを知っている人だけが /gate からログイン画面に進めます。</p>
+
+  <label>現在の紹介コード</label>
+  <input type="text" id="invite-code" style="width:100%; padding:8px 10px; border-radius:10px; border:1px solid #d1d5db; margin-bottom:10px;">
+
+  <button class="btn btn-primary" onclick="saveInvite()">保存</button>
+</div>
+
+<div id="toast"></div>
+
+<script>
+function showToast(msg, type="success") {
+  const t = document.createElement("div");
+  t.className = "toast " + type;
+  t.textContent = msg;
+  document.getElementById("toast").appendChild(t);
+  setTimeout(() => {
+    t.style.opacity = "0";
+    t.style.transform = "translateY(8px)";
+    setTimeout(() => t.remove(), 400);
+  }, 3000);
+}
+
+async function loadInvite() {
+  const res = await fetch("/api/admin/invite");
+  const data = await res.json();
+  document.getElementById("invite-code").value = data.invite_code || "";
+}
+
+async function saveInvite() {
+  const code = document.getElementById("invite-code").value.trim();
+  if (!code) {
+    showToast("紹介コードを入力してください", "error");
+    return;
+  }
+  const res = await fetch("/api/admin/invite", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ invite_code: code })
+  });
+  if (res.ok) {
+    showToast("紹介コードを更新しました");
+  } else {
+    showToast("更新に失敗しました", "error");
+  }
+}
+
+loadInvite();
+</script>
+
+{% endblock %}

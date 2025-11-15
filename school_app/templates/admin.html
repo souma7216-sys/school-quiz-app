@@ -1,0 +1,188 @@
+<!-- templates/admin.html -->
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>管理ダッシュボード - 学校クイズアプリ</title>
+</head>
+<body>
+  {% include "_header.html" %}
+
+  <main class="page">
+    <h1>管理ダッシュボード</h1>
+
+    <!-- 概要カード -->
+    <section class="cards">
+      <div class="stat-card">
+        <div class="stat-label">登録ユーザー数</div>
+        <div class="stat-value">{{ total_users }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">登録問題数</div>
+        <div class="stat-value">{{ total_questions }}</div>
+      </div>
+    </section>
+
+    <!-- ユーザー別の問題数 -->
+    <section class="card">
+      <div class="card-header">
+        <h2>ユーザー別の問題数</h2>
+        <a href="{{ url_for('admin_user_questions_page') }}" class="link">
+          ユーザー別問題一覧を見る →
+        </a>
+      </div>
+
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ユーザー名</th>
+            <th style="width:160px;">問題数</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for username, count in questions_by_user.items() %}
+            <tr>
+              <td>{{ username }}</td>
+              <td>{{ count }}</td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="2" class="empty">
+                まだ問題が登録されていません。
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 最近登録された問題 -->
+    <section class="card">
+      <div class="card-header">
+        <h2>最近登録された問題</h2>
+      </div>
+
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th style="width:60px;">ID</th>
+            <th>問題文</th>
+            <th style="width:140px;">ユーザー</th>
+            <th style="width:140px;">カテゴリ</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for q in recent_questions %}
+            <tr>
+              <td>{{ q.id }}</td>
+              <td class="text-col">{{ q.text }}</td>
+              <td>{{ q.owner or '' }}</td>
+              <td>{{ q.category or '未分類' }}</td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="4" class="empty">
+                まだ問題が登録されていません。
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <style>
+  .page {
+    max-width: 960px;
+    margin: 16px auto 40px;
+    padding: 0 16px;
+  }
+  h1 {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+  h2 {
+    font-size: 18px;
+    margin: 0;
+  }
+
+  /* 概要カード */
+  .cards {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    flex: 1 1 160px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 14px 16px;
+    box-shadow: 0 4px 12px rgba(15,23,42,0.06);
+  }
+  .stat-label {
+    font-size: 13px;
+    color: #6b7280;
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+
+  /* 共通カード */
+  .card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 14px 16px 16px;
+    box-shadow: 0 4px 12px rgba(15,23,42,0.06);
+    margin-bottom: 16px;
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .link {
+    font-size: 13px;
+    color: #2563eb;
+    text-decoration: none;
+  }
+  .link:hover {
+    text-decoration: underline;
+  }
+
+  /* 表の見た目改善 */
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .admin-table thead {
+    background: #f3f4f6;
+  }
+  .admin-table th,
+  .admin-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+  }
+  .admin-table tbody tr:nth-child(even) {
+    background: #f9fafb;
+  }
+  .admin-table tbody tr:hover {
+    background: #e5f0ff;
+  }
+  .admin-table .text-col {
+    max-width: 420px;
+    word-break: break-word;
+  }
+  .empty {
+    text-align: center;
+    color: #6b7280;
+    padding: 18px 0;
+  }
+  </style>
+</body>
+</html>

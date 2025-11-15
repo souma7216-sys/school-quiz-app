@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>ユーザー別問題一覧 - 管理</title>
+</head>
+<body>
+  {% include "_header.html" %}
+
+  <main class="page">
+    <h1>ユーザー別問題一覧</h1>
+
+    <!-- ユーザー選択 -->
+    <section class="card">
+      <label for="user-select">ユーザーを選択</label>
+      <select id="user-select"></select>
+      <p class="summary">
+        このユーザーの問題数：<span id="question-summary">-</span>
+      </p>
+    </section>
+
+    <!-- 問題一覧 -->
+    <section class="card">
+      <table id="user-question-table" class="admin-table">
+        <thead>
+          <tr>
+            <th style="width:60px;">ID</th>
+            <th>問題文</th>
+            <th style="width:140px;">カテゴリ</th>
+            <th style="width:120px;">形式</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="4" class="empty">読み込み中...</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='admin_manage.js') }}"></script>
+
+  <style>
+  .page {
+    max-width: 960px;
+    margin: 16px auto 40px;
+    padding: 0 16px;
+  }
+  h1 {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+  .card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: 0 4px 12px rgba(15,23,42,0.06);
+    margin-bottom: 16px;
+  }
+  label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  select {
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    min-width: 200px;
+  }
+  .summary {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #4b5563;
+  }
+
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+  .admin-table thead {
+    background: #f3f4f6;
+  }
+  .admin-table th,
+  .admin-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+  }
+  .admin-table tbody tr:nth-child(even) {
+    background: #f9fafb;
+  }
+  .admin-table tbody tr:hover {
+    background: #e5f0ff;
+  }
+  .admin-table .text-col {
+    max-width: 420px;
+    word-break: break-word;
+  }
+  .empty {
+    text-align: center;
+    color: #6b7280;
+    padding: 18px 0;
+  }
+  </style>
+</body>
+</html>

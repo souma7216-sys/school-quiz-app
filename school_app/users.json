@@ -1,0 +1,14 @@
+{
+  "users": [
+    {
+      "username": "e235332G",
+      "password": "1213",
+      "is_admin": false
+    },
+    {
+      "username": "souma",
+      "password": "Ksou1213",
+      "is_admin": true
+    }
+  ]
+}
