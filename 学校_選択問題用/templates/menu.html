@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+  <h1>管理者メニュー</h1>
+  <p>管理者専用の操作です。</p>
+
+  <ul>
+    <li><a href="{{ url_for('admin') }}">問題作成ページへ</a></li>
+    <li><a href="{{ url_for('admin_users_page') }}">ユーザー管理</a></li>
+    <li><a href="{{ url_for('admin_categories_page') }}">カテゴリ管理</a></li>
+    <li><a href="{{ url_for('admin_invite_page') }}">紹介コード管理</a></li>
+  </ul>
+</div>
+
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+  <h1>ユーザーの問題一覧</h1>
+  <p>対象ユーザー: <strong>{{ target_username }}</strong></p>
+
+  <table id="q-table" style="width:100%; border-collapse:collapse; font-size:14px; margin-top:12px;">
+    <thead>
+      <tr>
+        <th style="border-bottom:1px solid #e5e7eb; padding:8px;">ID</th>
+        <th style="border-bottom:1px solid #e5e7eb; padding:8px;">問題文</th>
+        <th style="border-bottom:1px solid #e5e7eb; padding:8px;">カテゴリ</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const targetUser = "{{ target_username }}";
+
+async function loadUserQuestions() {
+  const res = await fetch("/api/admin/user_questions/" + encodeURIComponent(targetUser));
+  const data = await res.json();
+  const tbody = document.querySelector("#q-table tbody");
+  if (!data.questions.length) {
+    tbody.innerHTML = `<tr><td colspan="3" style="padding:8px;">問題がありません。</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.questions.map(q => `
+    <tr>
+      <td style="border-bottom:1px solid #e5e7eb; padding:8px;">${q.id}</td>
+      <td style="border-bottom:1px solid #e5e7eb; padding:8px;">${(q.text || "").slice(0,60)}${(q.text||"").length>60 ? "…" : ""}</td>
+      <td style="border-bottom:1px solid #e5e7eb; padding:8px;">${q.category || "未分類"}</td>
+    </tr>
+  `).join("");
+}
+
+loadUserQuestions();
+</script>
+
+{% endblock %}
