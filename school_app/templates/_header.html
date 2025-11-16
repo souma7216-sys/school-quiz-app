@@ -1,79 +1,133 @@
-<!doctype html>
-<!-- templates/_header.html -->
 <header class="app-header">
-  <div class="app-header-inner">
-    <div class="app-title" onclick="location.href='{{ url_for('quiz') }}'">
-      学校クイズアプリ
+  <div class="header-inner">
+    <!-- 左：アプリ名 -->
+    <div class="header-left">
+      <span class="app-title">学校クイズアプリ</span>
     </div>
 
-    <nav class="app-nav">
-      {% if current_user and current_user.is_admin %}
-        <a href="{{ url_for('admin') }}" class="nav-link">管理</a>
+    <!-- 中央：ナビゲーション -->
+    <nav class="header-center">
+      {% if current_user.is_admin %}
+        <a href="{{ url_for('admin_menu') }}" class="nav-link">管理メニュー</a>
+      {% else %}
+        <a href="{{ url_for('quiz') }}" class="nav-link">クイズTOP</a>
       {% endif %}
-      <button type="button" class="logout-btn" onclick="handleLogout()">
-        ログアウト
-      </button>
     </nav>
+
+    <!-- 右：ログアウト（単独） -->
+    <div class="header-right">
+      {% if current_user.username %}
+        <form id="logout-form" action="{{ url_for('logout') }}" method="get">
+          <button type="submit" class="btn-logout">ログアウト</button>
+        </form>
+      {% endif %}
+    </div>
   </div>
 </header>
 
-<script>
-function handleLogout() {
-  if (confirm("ログアウトしますか？\n（クイズ途中の場合、現在の結果は保存されません）")) {
-    window.location.href = "{{ url_for('logout') }}";
-  }
-}
-</script>
-
 <style>
-.app-header {
-  border-bottom: 1px solid #e5e7eb;
-  background: #f9fafb;
-}
-.app-header-inner {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 8px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-}
-.app-title {
-  font-size: 18px;
-  font-weight: 700;
-  cursor: pointer;
-}
-.app-nav {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.nav-link {
-  font-size: 14px;
-  text-decoration: none;
-  color: #2563eb;
-  padding: 4px 8px;
-}
-.logout-btn {
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 1px solid #d1d5db;
-  background: #ffffff;
-  font-size: 13px;
-  cursor: pointer;
-}
-.logout-btn:hover {
-  background: #fee2e2;
-}
-@media (max-width: 640px) {
-  .app-header-inner {
-    flex-direction: column;
-    align-items: flex-start;
+  .app-header {
+    background: #1f2933;
+    color: #f9fafb;
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
   }
-  .app-nav {
-    width: 100%;
+
+  .header-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;  /* 画面が狭いとき折り返し */
+  }
+
+  .header-left {
+    flex: 1 1 auto;
+    min-width: 140px;
+  }
+
+  .app-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  .header-center {
+    display: flex;
+    justify-content: center;
+    flex: 1 1 auto;
+    min-width: 140px;
+  }
+
+  .nav-link {
+    padding: 6px 16px;
+    border-radius: 999px;
+    background: #111827;
+    color: #e5e7eb;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+
+  .nav-link:hover {
+    background: #374151;
+  }
+
+  .header-right {
+    display: flex;
     justify-content: flex-end;
+    flex: 1 1 auto;
+    min-width: 120px;
   }
-}
+
+  .btn-logout {
+    padding: 6px 16px;
+    border-radius: 999px;
+    border: 1px solid #f97373;
+    background: #b91c1c;
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .btn-logout:hover {
+    background: #ef4444;
+  }
+
+  /* ===== スマホ向けレイアウト ===== */
+  @media (max-width: 640px) {
+    .header-inner {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+    }
+
+    .header-center {
+      order: 1;
+      justify-content: center;
+    }
+
+    .header-right {
+      order: 2;
+      justify-content: center;
+    }
+
+    .btn-logout {
+      width: 70%;          /* 画面中央に太く表示 */
+      max-width: 260px;
+    }
+  }
 </style>
+
+<script>
+  // 誤タップ防止の確認ダイアログ
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('logout-form');
+    if (!form) return;
+    form.addEventListener('submit', (e) => {
+      if (!confirm('本当にログアウトしますか？')) {
+        e.preventDefault();
+      }
+    });
+  });
+</script>

@@ -95,10 +95,6 @@ def save_invite_code(code):
 
 @app.context_processor
 def inject_current_user():
-    """
-    すべてのテンプレートから current_user にアクセスできるようにする。
-    current_user は常に存在する（未ログインならゲスト扱い）。
-    """
     user = get_current_user() or {}
     return {
         "current_user": {
@@ -272,7 +268,7 @@ def quiz():
     return render_template("index.html")
 
 
-# 以前は @admin_required を付けていたが、ここは全ログインユーザーOKのまま
+# 以前は @admin_required を付けていたが、トップ管理画面として一般ログイン後にも使う想定なので外している
 @app.route("/admin")
 @require_invited
 @login_required
@@ -289,7 +285,7 @@ def admin_menu():
     return render_template("menu.html")
 
 
-# 管理者ページ（ユーザー一覧・カテゴリ一覧・紹介コード）表示用
+# 管理者ページ（ユーザー一覧・カテゴリ一覧・紹介コード・ユーザー別問題一覧）表示用
 @app.route("/admin/users")
 @require_invited
 @login_required
@@ -312,6 +308,15 @@ def admin_categories_page():
 @admin_required
 def admin_invite_page():
     return render_template("admin_invite.html")
+
+
+@app.route("/admin/user_questions")
+@require_invited
+@login_required
+@admin_required
+def admin_user_questions_page():
+    # 管理者用：ユーザー別問題一覧ページ
+    return render_template("admin_user_questions.html")
 
 
 # =======================================================
